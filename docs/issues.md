@@ -93,7 +93,7 @@ A empresa encaminhou as demandas abaixo. A dupla deve criar, organizar e acompan
 
 **Classificação esperada:** Manutenção preventiva.
 
-**Critérios de aceite:**
+**Critérios de aceite - :**
 
 - Teste de criação válida de chamado.
 - Teste de criação sem título.
