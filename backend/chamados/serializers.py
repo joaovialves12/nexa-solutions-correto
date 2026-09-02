@@ -18,10 +18,16 @@ class ChamadoSerializer(serializers.ModelSerializer):
             "criado_em",
             "atualizado_em",
         ]
+        # Correção INC-01:
+        # título passa a ser obrigatório e não pode ser vazio/em branco.
+        extra_kwargs = {
+            "titulo": {
+                "required": True,
+                "allow_blank": False,
+            },
+        }
 
     def validate_titulo(self, value):
-        if not value or len(value.strip()) < 5:
-            raise serializers.ValidationError(
-                "O título deve conter pelo menos 5 caracteres."
-            )
-        return value
+        if not value or not value.strip():
+            raise serializers.ValidationError("O campo 'titulo' é obrigatório.")
+        return value.strip()

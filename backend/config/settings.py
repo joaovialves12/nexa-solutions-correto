@@ -3,9 +3,20 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-chave-padrao')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+# Correção INC-05: segredo e configurações sensíveis lidos de variáveis
+# de ambiente. Nunca commitar valores reais — ver .env.example.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-defina-DJANGO_SECRET_KEY-no-.env",
+)
+
+DEBUG = os.environ.get("DEBUG", "False").strip().lower() in ("1", "true", "yes")
+
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if host.strip()
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -48,23 +59,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Configuração do Banco de Dados Dinâmica (PostgreSQL no Docker / SQLite em Testes Locais)
+# Correção INC-04/INC-05: PostgreSQL via variáveis de ambiente
+# (nomes alinhados com .env.example / docker-compose.yml).
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB', 'nexa_chamados'),
-        'USER': os.environ.get('POSTGRES_USER', 'nexa_user'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'troque-esta-senha'),
-        'HOST': os.environ.get('POSTGRES_HOST', 'db'),
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB", "nexa_chamados"),
+        "USER": os.environ.get("POSTGRES_USER", "nexa_user"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
+        "HOST": os.environ.get("POSTGRES_HOST", "db"),
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
     }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 LANGUAGE_CODE = 'pt-br'
@@ -72,5 +92,12 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATIC_URL = "static/"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
+    ]
+}
